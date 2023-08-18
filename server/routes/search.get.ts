@@ -1,4 +1,4 @@
-import { GetArticleData } from "../../types";
+import { SearchArticlesData } from "../../types";
 import { genUrl } from "../utils";
 import { encrypt } from "../crypto";
 import { timestamp2Date } from '@/utils/index'
@@ -6,9 +6,8 @@ import { timestamp2Date } from '@/utils/index'
 export default defineEventHandler(async event => {
   const { node } = event;
   const url = genUrl(node.req.url as string);
-  const res: GetArticleData = await $fetch(url)
-  
-  return (res?.data?.list || []).map(item => {
+  const res: SearchArticlesData = await $fetch(url)
+  return (res?.data?.Success?.list || []).map(item => {
     const { id, author_id, modify_time } = item;
     return {
       ...item,

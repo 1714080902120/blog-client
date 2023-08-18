@@ -8,7 +8,7 @@ export interface RtData<T> {
 export interface Article {
   id: string;
   title: string;
-  modify_time: u64;
+  modify_time: u64 | string;
   description: string;
   author_name: string;
   author_desc: string;
@@ -18,3 +18,14 @@ export interface Article {
 export type GetArticleData = RtData<{
   list: Article[];
 }>;
+
+export type SearchArticlesData = RtData<{
+  Success: {
+    list: Article[]
+  }
+}>
+
+export interface ArticleDetail extends Article {
+  content: string;
+  [key: string]: any;
+}

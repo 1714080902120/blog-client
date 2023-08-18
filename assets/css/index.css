@@ -1,0 +1,92 @@
+:root {
+  --prose-img-margin: auto;
+  --prose-code-block-border-color: var(--typography-color-secondary-800);
+  --prose-ol-paddingInlineStart: 30px !important;
+  --gradient_hover_animate: move 0.7s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  /* overflow: hidden !important;
+  height: 100vh; */
+  will-change: scroll-position;
+}
+
+.dark {
+  --prose-code-inline-backgroundColor: #831843 !important;
+  --prose-code-inline-color: #fff !important;
+  --prose-hr-color: rgba(255, 255, 255, 0.1) !important;
+  --prose-tbody-tr-borderBottom-color: rgba(255, 255, 255, 0.1) !important;
+  --prose-thead-borderBottom-color: rgba(255, 255, 255, 0.1) !important;
+  --gradient_hover_bg: linear-gradient(
+    to bottom right,
+    rgba(30, 27, 75, 0.9) 60%,
+    rgba(97, 0, 102, 0.7)
+  );
+}
+
+.light {
+  --prose-code-inline-backgroundColor: #ffedd5 !important;
+  --gradient_hover: linear-gradient(
+    to bottom right,
+    rgba(255, 245, 231, 0.1) 60%,
+    rgba(255, 205, 224, 0.7)
+  );
+
+}
+
+@keyframes move {
+  from {
+    background-position: left top;
+  }
+  to {
+    background-position: right bottom;
+  }
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* .sepia-mode {
+  --color-mode-bg: #f1e7d0;
+  --color-mode-text: #433422;
+} */
+
+.flex {
+  display: flex;
+}
+
+.flex-al-c {
+  display: flex;
+  align-items: center;
+}
+
+.flex-jc-c {
+  display: flex;
+  justify-content: center;
+}
+
+.flex-c {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-btw-c {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.search_icon svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+}
