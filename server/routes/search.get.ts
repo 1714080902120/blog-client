@@ -1,18 +1,36 @@
 import { SearchArticlesData } from "../../types";
-import { genUrl } from "../utils";
+import { genPic, genUrl } from "../utils";
 import { encrypt } from "../crypto";
 import { timestamp2Date } from '@/utils/index'
+import { UPLOAD_ARTICLE_IMG } from "~/constant";
 
 export default defineEventHandler(async event => {
   const { node } = event;
   const url = genUrl(node.req.url as string);
   const res: SearchArticlesData = await $fetch(url)
-  return (res?.data?.Success?.list || []).map(item => {
-    const { id, author_id, modify_time } = item;
-    return {
-      ...item,
-      modify_time: timestamp2Date(modify_time),
-      author_id: encrypt(author_id), // 对作者`id`做下保护
+
+  if (res.success) {
+    const data = res.data.Success;
+    for (let i = 0; i < data.list.length; i++) {
+      const item = data.list[i];
+      const { id, author_id, modify_time } = item;
+      let head_pic = item.head_pic;
+      if (head_pic) {
+        try {
+          head_pic = await genPic(UPLOAD_ARTICLE_IMG, head_pic);
+        } catch (error) {
+          head_pic = ''
+          console.error('something went wrong when load image from COS', error)
+        }
+      }
+      data.list[i] = {
+        ...item,
+        head_pic,
+        modify_time: timestamp2Date(modify_time),
+        author_id: encrypt(author_id), // 对作者`id`做下保护
+      }
     }
-  });
+    return data.list;
+  }
+  return [];
 })

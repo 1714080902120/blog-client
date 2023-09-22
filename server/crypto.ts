@@ -4,11 +4,12 @@ import {
   createCipheriv,
   createDecipheriv,
 } from "crypto";
-const { app } = useRuntimeConfig();
+
+const { SECRET_KEY } = process.env;
 
 
 const algorithm = "aes-192-cbc";
-const password = app.secretKey;
+const password = SECRET_KEY as string;
 const iv = Buffer.alloc(16, 0);
 const key = scryptSync(password, "salt", 24);
 

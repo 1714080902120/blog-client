@@ -2,7 +2,9 @@
   --prose-img-margin: auto;
   --prose-code-block-border-color: var(--typography-color-secondary-800);
   --prose-ol-paddingInlineStart: 30px !important;
-  --gradient_hover_animate: move 0.7s cubic-bezier(0.39, 0.575, 0.565, 1) forwards;
+  --gradient_hover_animate: move 0.7s cubic-bezier(0.39, 0.575, 0.565, 1)
+    forwards;
+  --prose-img-borderRadius: 4px;
 }
 
 html,
@@ -26,24 +28,63 @@ body {
     rgba(30, 27, 75, 0.9) 60%,
     rgba(97, 0, 102, 0.7)
   );
+  --card_box_shadow: 10px 10px 100px 10px rgba(192, 38, 211, 0.4);
+}
+
+.dark .md-editor {
+
+  /* 覆盖md-editor的变量 start */
+  --md-color: rgba(113,162,184, 0.7);
+  --md-hover-color: #bbb;
+  --md-bk-color: rgba(0, 0, 0, 0.1);
+  --md-bk-color-outstand: #111;
+  --md-bk-hover-color: #1b1a1a;
+  --md-border-color: #2d2d2d;
+  --md-border-hover-color: #636262;
+  --md-border-active-color: #777;
+  --md-modal-mask: #00000073;
+  /* 覆盖md-editor的变量 end */
+
 }
 
 .light {
   --prose-code-inline-backgroundColor: #ffedd5 !important;
-  --gradient_hover: linear-gradient(
+  --gradient_hover_bg: linear-gradient(
     to bottom right,
     rgba(255, 245, 231, 0.1) 60%,
     rgba(255, 205, 224, 0.7)
   );
+  --card_box_shadow: 10px 10px 100px 10px rgba(255, 70, 162, 0.2);
+}
 
+.light .md-editor {
+
+
+  /* 覆盖md-editor的变量 start */
+
+  --md-color: #3f4a54;
+  --md-hover-color: #000;
+  --md-bk-color: rgba(255, 255, 255, 0.1);
+  --md-bk-color-outstand: #f6f6f6;
+  --md-bk-hover-color: #f5f7fa;
+  --md-border-color: #e6e6e6;
+  --md-border-hover-color: #b9b9b9;
+  --md-border-active-color: #999;
+  --md-modal-mask: #00000073;
+  --md-scrollbar-bg-color: rgba(226, 226, 226, .2);
+  --md-scrollbar-thumb-color: rgba(255, 157, 214, 0.38);
+  --md-scrollbar-thumb-hover-color: rgba(255, 76, 180, 0.38);
+  --md-scrollbar-thumb-active-color: rgba(255, 76, 180, 0.38);
+
+  /* 覆盖md-editor的变量 end */
 }
 
 @keyframes move {
   from {
-    background-position: left top;
+    background-position: 0 0;
   }
   to {
-    background-position: right bottom;
+    background-position: 100% 95%;
   }
 }
 
@@ -89,4 +130,46 @@ body::-webkit-scrollbar {
 .search_icon svg {
   width: 1.25rem !important;
   height: 1.25rem !important;
+}
+
+.dark .modal_btn:hover,
+.dark .login_btn:hover,
+.dark .register_btn:hover,
+.dark .search_btn:hover,
+.dark .base_btn:hover {
+  background-image: linear-gradient(
+    rgb(12 74 110 / 0.8),
+    rgba(192, 38, 211, 0.4)
+  );
+
+  box-shadow: 10px 10px 100px 10px rgba(192, 38, 211, 0.4);
+  background-position: left top;
+  background-size: 350% 250%;
+  animation: var(--gradient_hover_animate);
+}
+
+.light .modal_btn:hover,
+.light .login_btn:hover,
+.light .register_btn:hover,
+.light .search_btn:hover,
+.light .base_btn:hover {
+  background-image: linear-gradient(
+    rgb(99 102 241 / 0.2),
+    rgb(168 85 247 / 0.2),
+    rgb(236 72 153 / 0.2)
+  );
+  box-shadow: 10px 10px 100px 10px rgb(236 72 153 / 0.2);
+  background-position: left top;
+  background-size: 350% 250%;
+  animation: var(--gradient_hover_animate);
+}
+
+.__img_editor {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+  height: 600px;
 }

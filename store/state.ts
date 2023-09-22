@@ -4,16 +4,27 @@ import { reactive, ref } from "vue";
 import type { UnwrapNestedRefs } from "vue";
 import { Article } from "@/types/index";
 
+export const useGlobalState = defineStore('global_state', () => {
+  const notAuth = ref(false);
+
+  function setIsNotAuth (state: boolean) {
+    notAuth.value = state;
+  }
+
+  return {
+    notAuth,
+    setIsNotAuth
+  }
+})
+
 export const useArticles = defineStore("articles", () => {
   const articles: UnwrapNestedRefs<Article[][]> = reactive([]);
   const pageNo = ref(-1);
   const limit = ref(10);
 
-  const isEnd = ref(false);
-
   const isFromSearch = ref(false);
 
-  const condition = ref('');
+  const condition = ref("");
 
   function updateArticles(index: number, list: Article[]) {
     articles[index] = list;
@@ -27,26 +38,20 @@ export const useArticles = defineStore("articles", () => {
     return articles[index];
   }
 
-  function setLoadEnd(state: boolean) {
-    isEnd.value = state;
-  }
-
   function setIsFromSearch(state: boolean) {
     isFromSearch.value = state;
   }
 
-  function setCondition (value: string) {
-    condition.value = value
+  function setCondition(value: string) {
+    condition.value = value;
   }
 
   return {
     limit,
-    isEnd,
     pageNo,
     articles,
     condition,
     isFromSearch,
-    setLoadEnd,
     getArticle,
     setCondition,
     updatePageNo,
@@ -56,16 +61,18 @@ export const useArticles = defineStore("articles", () => {
 });
 
 export const useArticleDetail = defineStore("article_detail", () => {
-  const detail = reactive({
+  const detail: ArticleDetail = reactive({
     id: "",
     title: "",
     description: "",
     modify_time: -1,
     content: "",
+    head_pic: '',
 
     author_id: "",
     author_name: "",
     author_desc: "",
+    author_pic: '',
   });
 
   function setData(data: ArticleDetail) {
@@ -82,15 +89,20 @@ export const useArticleDetail = defineStore("article_detail", () => {
   };
 });
 
-export const useUserMsg = defineStore("user_msg", () => {
-  const msg = reactive({
-    name: "-",
-    description: "这个人很懒，什么都没留下~",
-    phone: "-",
-    email: "-",
-  });
+// 用于存储tips
+export const useTips = defineStore('user_tips', () => {
+  let tip = ref('');
+
+  function setTip(msg: string) {
+    tip.value = msg;
+  }
 
   return {
-    msg,
-  };
-});
+    tip,
+    setTip
+  }
+
+})
+
+
+

@@ -1,13 +1,16 @@
 <template>
   <div class="index_wrapper h-full min-h-screen pb-24 px-10 max-w-7xl">
     <NuxtPage />
+    <!-- TODO 待实现 -->
+    <!-- <CategoriesBar /> -->
   </div>
 </template>
 
 <script setup lang="ts">
+// import CategoriesBar from "components/CategoriesBar.vue";
 import { useArticles } from "store/state";
 import { eventOn } from "@/utils/emitter";
-import { ON_SCROLL_REACH_ASIDE, AIM } from "@/constant";
+import { ON_SCROLL_REACH_ASIDE, AIM, SHOW_TOAST } from "constant";
 import middleware from "@/middleware/index";
 
 import { reqFnForIndex } from "@/request/index";
@@ -25,7 +28,7 @@ const lock = ref(false);
 const getArticles = async (index: number) => {
   const isFromSearch = !!articlesStore.condition;
   const reqFn = reqFnForIndex(isFromSearch);
-  console.log(reqFn)
+
   const data =
     (await reqFn({
       condition: articlesStore.condition,
@@ -41,7 +44,6 @@ const getArticles = async (index: number) => {
 };
 
 eventOn(ON_SCROLL_REACH_ASIDE, async (target: string) => {
-  if (articlesStore.isEnd) return;
   if (lock.value) return;
   const pageNo = articlesStore.pageNo;
   if (target === AIM[1] && pageNo <= 0) {
@@ -55,25 +57,45 @@ eventOn(ON_SCROLL_REACH_ASIDE, async (target: string) => {
     if (canJump) {
       const router = useRouter();
       router.push({
-        path: `/page-${articlesStore.pageNo}${articlesStore.isFromSearch ? `?condition=${articlesStore.condition}` : ''}`,
+        path: `/page-${articlesStore.pageNo}${
+          articlesStore.isFromSearch
+            ? `?condition=${articlesStore.condition}`
+            : ""
+        }`,
       });
     }
   });
 
   setTimeout(() => {
     lock.value = false;
-  }, 300);
+  }, 1000);
 });
 
 async function loadData(aim: string, pageNo: number): Promise<boolean> {
   // 如果有缓存，就不做请求
   let index = aim === AIM[0] ? pageNo + 1 : pageNo - 1;
   index = index < 0 ? 0 : index;
+
   if (articlesStore.articles[index]?.length > 0) {
     articlesStore.updatePageNo(index);
     return true;
   } else {
     return await getArticles(index);
+  }
+}
+
+// 无奈之举，用于修改密码后回到首页的提示
+if (process.client) {
+  handleShowTip();
+
+  function handleShowTip() {
+    const tip = window.sessionStorage.getItem("reset_pwd_tip");
+    if (tip) {
+      window.sessionStorage.removeItem("reset_pwd_tip");
+      setTimeout(() => {
+        eventEmit(SHOW_TOAST, tip);
+      }, 1000);
+    }
   }
 }
 </script>

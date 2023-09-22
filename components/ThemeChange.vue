@@ -1,9 +1,12 @@
 <script setup lang="ts">
 const colorMode = useColorMode();
 const show = ref(false);
+
 setTimeout(() => {
   show.value = true;
 });
+
+
 
 const onClick = () => {
   const values = ["system", "light", "dark"];

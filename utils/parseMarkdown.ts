@@ -1,3 +1,4 @@
+// @ts-ignore
 import markdownParser from '@nuxt/content/transformers/markdown';
 
 

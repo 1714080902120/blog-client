@@ -1,12 +1,18 @@
-import { parseMarkdown } from "utils/parseMarkdown";
-import { wrapDivForCode } from "utils";
-import { reqFnForIndex } from "@/request/index";
+import {
+  GET_USER_MSG,
+  RESET_PWD,
+} from "constant/fetchUrl";
+import { TOKEN_KEY } from "constant/index";
+import { getCookie, getQuery, setCookie } from "h3";
+import type { H3Event } from "h3";
+import {  GetUserDataSuccess, route } from "types";
 
-const routes = [initIndex, initDetail];
+import { initDetail } from "./pagesInit/articleDetail";
+import { initIndex } from "./pagesInit/indexPage";
+import { initProfile } from "./pagesInit/profile";
 
-const matchIndexReg = /\/page-(\d+)(?:\?condition=(.+))?/;
+const routes = [initIndex, initDetail, initProfile, initResetPwd];
 
-type route = { isMatched: boolean; fn: (nuxtApp: any) => void };
 
 async function matchRoute(path: string, nuxtApp: any) {
   for (let i = 0; i < routes.length; i++) {
@@ -17,110 +23,77 @@ async function matchRoute(path: string, nuxtApp: any) {
   }
 }
 
-function initIndex(path: string): route {
+
+function initResetPwd(path: string): route {
   return {
-    isMatched: path.includes("/page-"),
-    fn: async () => {
-      path = decodeURIComponent(path);
-      const matches = path.match(matchIndexReg) as RegExpExecArray;
-
-      const index = parseInt(matches[1]) || 0;
-      const condition = matches[2];
-      const isFromSearch = !!condition;
-
-      const { useArticles } = await import("store/state");
-      const articlesStore = useArticles();
-
-      articlesStore.setIsFromSearch(isFromSearch);
-
-      if (isFromSearch) {
-        articlesStore.setCondition(condition);
-      }
-
-      const getArticles = async () => {
-        const reqFn = reqFnForIndex(isFromSearch);
-
-        const data =
-          (await reqFn({
-            condition,
-            page_no: index,
-            limit: articlesStore.limit,
-          })) || [];
-          console.log(123123, path, index, isFromSearch, condition, reqFn, data)
-        if (data?.length > 0) {
-          articlesStore.updatePageNo(index);
-          articlesStore.updateArticles(index, data);
-        } else {
-          articlesStore.setLoadEnd(true);
-        }
-      };
-
-      await getArticles();
-    },
-  };
-}
-
-function initDetail(path: string): route {
-  return {
-    isMatched: path.includes("detail-"),
+    isMatched: path.includes("resetPwd"),
     fn: async (nuxtApp: any) => {
-      const art_id = path.split("detail-")[1];
-      const article =
-        ((await $fetch("/get_article", {
-          method: "get",
-          params: {
-            all: false,
-            id: art_id,
-            limit: 1,
-            page_no: 0,
-          },
-        })) || [])[0] || {};
-
-      const {
-        id,
-        author_id,
-        author_desc,
-        author_name,
-        description,
-        modify_time,
-        title,
-      } = article;
-
-      const loadMarkdown = async () => {
-        const data: string = await $fetch("/get_md", {
-          params: {
-            author_id,
-            article_id: id,
-          },
-        });
-        return await parseMarkdown(data.replaceAll("\r", ""));
-      };
-      const content = await loadMarkdown();
-      const { useArticleDetail } = await import("store/state");
-
-      const detail = useArticleDetail();
-      detail.setData({
-        id,
-        author_id,
-        author_desc,
-        author_name,
-        description,
-        modify_time,
-        title,
-        content: wrapDivForCode(content),
+      const { email, pwd } = getQuery(nuxtApp.ssrContext.event);
+      const res = await $fetch(RESET_PWD, {
+        method: "post",
+        body: { email, pwd },
       });
+      const { useTips } = await import("store/state");
+      const tips = useTips();
+      tips.setTip(res.msg as string);
+      if (res.success) {
+        // @ts-ignore
+        const token = res.token;
+        setCookie(nuxtApp.ssrContext.event, TOKEN_KEY, token, {
+          maxAge: 24 * 60 * 60,
+        });
+      }
     },
   };
 }
+
+async function getUserMsg(event: H3Event) {
+  const token = getCookie(event, TOKEN_KEY);
+  if (token) {
+    const res = await $fetch(GET_USER_MSG, { method: "post", body: { token } });
+    if (res?.success) {
+      const { useUserMsg } = await import("store/user");
+      const userMsg = useUserMsg();
+
+      userMsg.setUserMsg({
+        ...((res?.data as GetUserDataSuccess)?.Success || {}),
+      });
+    }
+  }
+}
+
+async function redirectIfIsResetPwd(path: string) {
+  if (path?.includes("resetPwd")) {
+    const { useTips } = await import("store/state");
+    const tip = useTips().tip;
+    if (tip) {
+      // TODO 无奈之举，待优化
+      window.sessionStorage.setItem("reset_pwd_tip", tip);
+    }
+    window.open("/", "_self");
+  }
+}
+
 
 export default defineNuxtPlugin((nuxtApp) => {
   nuxtApp.hook("app:created", async () => {
+
     const { ssrContext, payload } = nuxtApp;
     // determine that it is server
-    if (ssrContext) {
+    if (process.server && ssrContext) {
+      // no need to await
+      await getUserMsg(ssrContext?.event);
       // only for index.vue
       const path = payload.path || "/";
       await matchRoute(path, nuxtApp);
+    } else {
+      const { useGlobalState } = await import("store/state");
+
+      if (useGlobalState().notAuth) {
+        window.open("/", "_self");
+        return;
+      }
+      await redirectIfIsResetPwd(payload.path || "");
     }
   });
 });
