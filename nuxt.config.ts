@@ -1,13 +1,14 @@
 import { fileURLToPath } from "url";
 import { defineNuxtConfig } from "nuxt/config";
 
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-const { API_BASE, SECRET_KEY } = process.env;
+const { PROD } = process.env;
 
 export default defineNuxtConfig({
   extends: ['@nuxt-themes/docus', "@nuxt-themes/typography"],
-  modules: ["@nuxt/content", "@pinia/nuxt", '@nuxtjs/tailwindcss', '@nuxtjs/color-mode', 'nuxt-icons'],
+  modules: ["@nuxt/content", "@pinia/nuxt", '@nuxtjs/tailwindcss', '@nuxtjs/color-mode', 'nuxt-icons', '@nuxt/image'],
   css: [
     'css/index.css'
   ],
@@ -17,13 +18,14 @@ export default defineNuxtConfig({
   content: {
     documentDriven: false,
   },
-  devtools: { enabled: true },
-  runtimeConfig: {
-    app: {
-      apiBase: API_BASE,
-      secretKey: SECRET_KEY,
-    },
+  image: {
+    domains: [],
   },
+  sourcemap: {
+    server: !PROD,
+    client: !PROD
+  },
+  devtools: { enabled: !PROD },
   alias: {
     "@": fileURLToPath(new URL("./", import.meta.url)),
     "~": fileURLToPath(new URL("./", import.meta.url)),
@@ -33,6 +35,8 @@ export default defineNuxtConfig({
     store: fileURLToPath(new URL("./store", import.meta.url)),
     css: fileURLToPath(new URL("./assets/css", import.meta.url)),
     assets: fileURLToPath(new URL("./assets", import.meta.url)),
+    components: fileURLToPath(new URL("./components", import.meta.url)),
+    constant: fileURLToPath(new URL("./constant", import.meta.url)),
   },
   app: {
     pageTransition: { name: "page", mode: "out-in" },
@@ -47,12 +51,12 @@ export default defineNuxtConfig({
         {
           name: "keyword",
           content:
-            "Vue, Nuxt, Rust program language, Tokio, web frontend, web client, Docker",
+            "blog platform, Vue, Nuxt, Rust program language, Tokio, web frontend, web client, Docker",
         },
         {
           name: "description",
           content:
-            "坏蛋Dan的个人博客，里面包含了Vue, Nuxt, Rust program language, Docker, web frontend, web client等，主要是前端和Rust相关的",
+            "一个简洁的博客平台，里面包含了一些技术文章",
         },
         {
           charset: "utf-8",
@@ -60,4 +64,7 @@ export default defineNuxtConfig({
       ],
     },
   },
+  tailwindcss: {
+    viewer: false,
+  }
 });
